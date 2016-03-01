@@ -44,12 +44,12 @@ class app:
 
 class webApp:
     """Root of a hierarchy of classes implementing web applications
-
+    No tiene herencia de App porque no reutilizo codigo de App
     This class does almost nothing. Usually, new classes will
     inherit from it, and by redefining "parse" and "process" methods
     will implement the logic of a web application in particular.
     """
-
+    """Cambio porque tengo que elegir para que clase lo uso."""
     def select(self, request):
         """Selects the application (in the app hierarchy) to run.
 
@@ -58,16 +58,16 @@ class webApp:
         invoked. If prefix is not found, return app class
         """
 
-        resource = request.split(' ', 2)[1]
-        for prefix in self.apps.keys():
+        resource = request.split(' ', 2)[1] #me pide el segundo elemento
+        for prefix in self.apps.keys(): #miramos el nombre de todas las aplicaciones
             if resource.startswith(prefix):
                 print "Running app for prefix: " + prefix + \
-                    ", rest of resource: " + resource[len(prefix):] + "."
+                    ", rest of resource: " + resource[len(prefix):] + "." #miro si en el recurso esta ese prefijo
                 return (self.apps[prefix], resource[len(prefix):])
         print "Running default app"
-        return (self.myApp, resource)
+        return (self.myApp, resource) #Aplicacion por defecto
 
-    def __init__(self, hostname, port, apps):
+    def __init__(self, hostname, port, apps): #numero parametro app
         """Initialize the web application."""
 
         self.apps = apps
@@ -90,6 +90,11 @@ class webApp:
             print 'HTTP request received (going to parse and process):'
             request = recvSocket.recv(2048)
             print request
+            """Llamo primero a select ; en select miro que aplicacion me estan seleccionando
+            theApp ->aplicacion
+            rest-> el resto
+            Cada aplicacion tiene su parse y su procces por eso lo invocamos con theApp.process/parse
+            """
             (theApp, rest) = self.select(request)
             parsedRequest = theApp.parse(request, rest)
             (returnCode, htmlAnswer) = theApp.process(parsedRequest)
@@ -98,8 +103,11 @@ class webApp:
                             + htmlAnswer + "\r\n")
             recvSocket.close()
 
+
 if __name__ == "__main__":
     anApp = app()
     otherApp = app()
+    #aleat = aleatApp() si quiero meter la aplicacion ce URL aleatorias tengo que meter otra aplicacion en el main
     testWebApp = webApp("localhost", 1234, {'/app': anApp,
                                             '/other': otherApp})
+                                            #'/aleat':aleatApp
